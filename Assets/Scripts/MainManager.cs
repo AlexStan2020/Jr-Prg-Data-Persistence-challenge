@@ -10,11 +10,15 @@ public class MainManager : MonoBehaviour
     public int LineCount = 6;
     public Rigidbody Ball;
 
-    public Text ScoreText;
+    public Text ScoreText, highScoreText;
     public GameObject GameOverText;
+    public GameObject menuButton;
+
+    HighScoreManager instance;
+    string currentName, currentHighScoreName;
     
     private bool m_Started = false;
-    private int m_Points;
+    private int m_Points,currentHighScore;
     
     private bool m_GameOver = false;
 
@@ -24,7 +28,14 @@ public class MainManager : MonoBehaviour
     {
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
-        
+
+        instance = GameObject.Find("HighScoreManager").GetComponent<HighScoreManager>();
+        currentName = instance.currentName;
+        currentHighScore = instance.highScore;
+        currentHighScoreName = instance.highScoreName;
+
+        highScoreText.text = $"Best Score: {currentHighScoreName} : {currentHighScore}";
+
         int[] pointCountArray = new [] {1,1,2,2,5,5};
         for (int i = 0; i < LineCount; ++i)
         {
@@ -70,7 +81,22 @@ public class MainManager : MonoBehaviour
 
     public void GameOver()
     {
+        if (m_Points > currentHighScore)
+        {
+            instance.highScore = m_Points;
+            instance.highScoreName = currentName;
+            highScoreText.text = $"Best Score: {currentName} : {m_Points}";
+            instance.SaveInfo();
+            
+        }        
+
         m_GameOver = true;
         GameOverText.SetActive(true);
+        menuButton.SetActive(true);
+    }
+
+    public void ExitToMainMenu()
+    {
+        SceneManager.LoadScene(0);
     }
 }
